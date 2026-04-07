@@ -3,101 +3,168 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>오늘의 루틴 체크리스트</title>
+<title>오늘의 루틴</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+:root {
+  --bg: #ffffff;
+  --bg2: #f5f5f3;
+  --bg3: #eeede9;
+  --text: #1a1a18;
+  --text2: #5f5e5a;
+  --text3: #888780;
+  --border: rgba(0,0,0,0.11);
+  --border2: rgba(0,0,0,0.20);
+  --radius: 8px;
+  --radius-lg: 12px;
+  --blue: #185FA5;
+  --blue-bg: #E6F1FB;
+  --green: #3B6D11;
+  --green-bg: #EAF3DE;
+  --red: #A32D2D;
+  --red-bg: #FCEBEB;
+  --font: -apple-system, BlinkMacSystemFont, 'Noto Sans KR', sans-serif;
+}
+@media (prefers-color-scheme: dark) {
   :root {
-    --color-bg: #ffffff;
-    --color-bg-secondary: #f5f5f3;
-    --color-text-primary: #1a1a18;
-    --color-text-secondary: #5f5e5a;
-    --color-text-tertiary: #888780;
-    --color-border: rgba(0,0,0,0.12);
-    --color-border-secondary: rgba(0,0,0,0.22);
-    --radius-md: 8px;
-    --radius-lg: 12px;
-    --font: -apple-system, BlinkMacSystemFont, 'Noto Sans KR', sans-serif;
+    --bg: #1a1a18; --bg2: #242422; --bg3: #2e2e2b;
+    --text: #f0ede8; --text2: #b4b2a9; --text3: #888780;
+    --border: rgba(255,255,255,0.11); --border2: rgba(255,255,255,0.20);
+    --blue: #85B7EB; --blue-bg: #042C53;
+    --green: #97C459; --green-bg: #173404;
+    --red: #F09595; --red-bg: #501313;
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --color-bg: #1a1a18;
-      --color-bg-secondary: #242422;
-      --color-text-primary: #f0ede8;
-      --color-text-secondary: #b4b2a9;
-      --color-text-tertiary: #888780;
-      --color-border: rgba(255,255,255,0.12);
-      --color-border-secondary: rgba(255,255,255,0.22);
-    }
-  }
+}
 
-  body { font-family: var(--font); background: var(--color-bg); color: var(--color-text-primary); min-height: 100vh; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
 
-  .wrap { max-width: 680px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+/* TAB NAV */
+.tab-nav { display: flex; border-bottom: 0.5px solid var(--border2); background: var(--bg); position: sticky; top: 0; z-index: 10; }
+.tab-btn { flex: 1; padding: 14px 0; font-size: 13px; font-weight: 500; color: var(--text3); background: none; border: none; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; }
+.tab-btn.active { color: var(--text); border-bottom-color: var(--text); }
 
-  .header { margin-bottom: 1.5rem; }
-  .date-label { font-size: 12px; color: var(--color-text-tertiary); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 6px; }
-  .title { font-size: 22px; font-weight: 500; color: var(--color-text-primary); }
+/* PAGES */
+.page { display: none; }
+.page.active { display: block; }
 
-  .focus-card { background: var(--color-bg-secondary); border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 1.5rem; border: 0.5px solid var(--color-border); }
-  .focus-label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
-  .focus-input { width: 100%; font-size: 15px; font-weight: 500; color: var(--color-text-primary); background: transparent; border: none; outline: none; resize: none; font-family: var(--font); line-height: 1.5; }
-  .complete-label { font-size: 12px; color: var(--color-text-tertiary); margin-top: 8px; margin-bottom: 4px; }
-  .complete-input { width: 100%; font-size: 13px; color: var(--color-text-secondary); background: transparent; border: none; outline: none; resize: none; font-family: var(--font); line-height: 1.5; border-top: 0.5px solid var(--color-border); padding-top: 8px; }
+/* COMMON WRAP */
+.wrap { max-width: 680px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem; }
 
-  .progress-bar-wrap { height: 4px; background: var(--color-border); border-radius: 2px; margin-bottom: 1.5rem; }
-  .progress-bar { height: 4px; background: var(--color-text-primary); border-radius: 2px; transition: width 0.3s; width: 0%; }
+/* ── CHECKLIST PAGE ── */
+.header { margin-bottom: 1.5rem; }
+.date-label { font-size: 12px; color: var(--text3); letter-spacing: 0.05em; margin-bottom: 5px; }
+.page-title { font-size: 22px; font-weight: 500; }
 
-  .stat-row { display: flex; gap: 10px; margin-bottom: 1.25rem; }
-  .stat { flex: 1; background: var(--color-bg-secondary); border-radius: var(--radius-md); padding: 10px 12px; border: 0.5px solid var(--color-border); }
-  .stat-num { font-size: 20px; font-weight: 500; color: var(--color-text-primary); }
-  .stat-lbl { font-size: 11px; color: var(--color-text-tertiary); margin-top: 2px; }
+.focus-card { background: var(--bg2); border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 1.25rem; border: 0.5px solid var(--border); }
+.card-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+.focus-input { width: 100%; font-size: 15px; font-weight: 500; color: var(--text); background: transparent; border: none; outline: none; resize: none; font-family: var(--font); line-height: 1.5; }
+.complete-sep { border-top: 0.5px solid var(--border); margin-top: 8px; padding-top: 8px; }
+.complete-input { width: 100%; font-size: 13px; color: var(--text2); background: transparent; border: none; outline: none; resize: none; font-family: var(--font); line-height: 1.5; }
 
-  .section { margin-bottom: 1.25rem; }
-  .section-title { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; padding-left: 2px; }
-  .section-accent { color: #185FA5; }
+.prog-wrap { height: 4px; background: var(--border); border-radius: 2px; margin-bottom: 1.25rem; }
+.prog-bar { height: 4px; background: var(--text); border-radius: 2px; transition: width 0.3s; width: 0%; }
 
-  .item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: var(--radius-md); border: 0.5px solid var(--color-border); background: var(--color-bg); margin-bottom: 6px; cursor: pointer; transition: background 0.15s; user-select: none; }
-  .item:hover { background: var(--color-bg-secondary); }
-  .item.done { opacity: 0.5; }
-  .item.done .item-text { text-decoration: line-through; }
+.stat-row { display: flex; gap: 8px; margin-bottom: 1.25rem; }
+.stat { flex: 1; background: var(--bg2); border-radius: var(--radius); padding: 10px 12px; border: 0.5px solid var(--border); }
+.stat-num { font-size: 20px; font-weight: 500; }
+.stat-lbl { font-size: 11px; color: var(--text3); margin-top: 2px; }
 
-  .checkbox { width: 18px; height: 18px; min-width: 18px; border-radius: 4px; border: 1.5px solid var(--color-border-secondary); display: flex; align-items: center; justify-content: center; margin-top: 1px; transition: all 0.15s; background: transparent; }
-  .item.done .checkbox { background: var(--color-text-primary); border-color: var(--color-text-primary); }
-  .check-svg { display: none; }
-  .item.done .check-svg { display: block; }
+.section { margin-bottom: 1.1rem; }
+.sec-title { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 7px; padding-left: 2px; }
+.sec-accent { color: var(--blue); }
 
-  .item-content { flex: 1; }
-  .item-text { font-size: 14px; color: var(--color-text-primary); line-height: 1.5; }
-  .item-sub { font-size: 12px; color: var(--color-text-tertiary); margin-top: 2px; line-height: 1.4; }
+.item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: var(--radius); border: 0.5px solid var(--border); background: var(--bg); margin-bottom: 5px; cursor: pointer; transition: background 0.12s; user-select: none; }
+.item:hover { background: var(--bg2); }
+.item.done { opacity: 0.45; }
+.item.done .item-text { text-decoration: line-through; }
 
-  .badge { display: inline-block; font-size: 10px; font-weight: 500; padding: 2px 7px; border-radius: 99px; margin-left: 6px; vertical-align: middle; }
-  .badge-core { background: #E6F1FB; color: #185FA5; }
+.chk { width: 18px; height: 18px; min-width: 18px; border-radius: 4px; border: 1.5px solid var(--border2); display: flex; align-items: center; justify-content: center; margin-top: 1px; transition: all 0.12s; }
+.item.done .chk { background: var(--text); border-color: var(--text); }
+.chk-svg { display: none; }
+.item.done .chk-svg { display: block; }
 
-  .note-area { background: var(--color-bg-secondary); border-radius: var(--radius-lg); border: 0.5px solid var(--color-border); padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
-  .note-label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
-  .note-input { width: 100%; font-size: 13px; color: var(--color-text-primary); background: transparent; border: none; outline: none; resize: none; font-family: var(--font); line-height: 1.6; min-height: 80px; }
+.item-text { font-size: 14px; line-height: 1.5; }
+.item-sub { font-size: 12px; color: var(--text3); margin-top: 2px; line-height: 1.4; }
+.badge { display: inline-block; font-size: 10px; font-weight: 500; padding: 2px 7px; border-radius: 99px; margin-left: 6px; vertical-align: middle; background: var(--blue-bg); color: var(--blue); }
 
-  .footer-row { display: flex; justify-content: flex-end; }
-  .reset-btn { font-size: 12px; color: var(--color-text-tertiary); background: none; border: none; cursor: pointer; padding: 4px 0; text-decoration: underline; text-underline-offset: 2px; }
-  .reset-btn:hover { color: var(--color-text-secondary); }
+.note-area { background: var(--bg2); border-radius: var(--radius-lg); border: 0.5px solid var(--border); padding: 1rem 1.25rem; margin-bottom: 1rem; }
+.note-input { width: 100%; font-size: 13px; color: var(--text); background: transparent; border: none; outline: none; resize: none; font-family: var(--font); line-height: 1.6; min-height: 72px; }
+
+.footer-row { display: flex; justify-content: space-between; align-items: center; }
+.save-btn { font-size: 13px; font-weight: 500; color: var(--bg); background: var(--text); border: none; cursor: pointer; padding: 8px 18px; border-radius: var(--radius); transition: opacity 0.15s; }
+.save-btn:hover { opacity: 0.8; }
+.reset-btn { font-size: 12px; color: var(--text3); background: none; border: none; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+
+/* ── DASHBOARD PAGE ── */
+.dash-header { margin-bottom: 1.5rem; display: flex; align-items: flex-end; justify-content: space-between; }
+.month-nav { display: flex; align-items: center; gap: 10px; }
+.nav-btn { width: 28px; height: 28px; border-radius: 50%; border: 0.5px solid var(--border2); background: none; cursor: pointer; color: var(--text2); font-size: 14px; display: flex; align-items: center; justify-content: center; }
+.nav-btn:hover { background: var(--bg2); }
+.month-label { font-size: 18px; font-weight: 500; min-width: 100px; text-align: center; }
+
+.summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; margin-bottom: 1.25rem; }
+.sum-card { background: var(--bg2); border-radius: var(--radius); padding: 12px 14px; border: 0.5px solid var(--border); }
+.sum-num { font-size: 24px; font-weight: 500; }
+.sum-lbl { font-size: 11px; color: var(--text3); margin-top: 3px; }
+.sum-green { color: var(--green); }
+.sum-red { color: var(--red); }
+
+/* calendar grid */
+.cal-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: 4px; margin-bottom: 1.5rem; }
+.cal-dow { text-align: center; font-size: 10px; color: var(--text3); padding-bottom: 4px; }
+.cal-day { aspect-ratio: 1; border-radius: 6px; border: 0.5px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; color: var(--text3); background: var(--bg); position: relative; }
+.cal-day.has-data { color: var(--text); }
+.cal-day.full { background: var(--green-bg); border-color: var(--green); color: var(--green); font-weight: 500; }
+.cal-day.partial { background: var(--blue-bg); border-color: var(--blue); color: var(--blue); }
+.cal-day.zero { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+.cal-day.empty { background: transparent; border-color: transparent; }
+.cal-day.today-mark { box-shadow: 0 0 0 1.5px var(--text); }
+.cal-pct { font-size: 9px; margin-top: 1px; opacity: 0.8; }
+
+/* history list */
+.hist-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+.hist-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius); border: 0.5px solid var(--border); background: var(--bg); margin-bottom: 5px; }
+.hist-date { font-size: 13px; font-weight: 500; min-width: 60px; }
+.hist-bar-wrap { flex: 1; height: 6px; background: var(--border); border-radius: 3px; }
+.hist-bar { height: 6px; border-radius: 3px; background: var(--blue); transition: width 0.3s; }
+.hist-bar.full-bar { background: var(--green); }
+.hist-pct { font-size: 12px; color: var(--text2); min-width: 36px; text-align: right; }
+.hist-output { font-size: 11px; color: var(--text3); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.empty-msg { text-align: center; padding: 2rem; font-size: 13px; color: var(--text3); }
+
+/* legend */
+.legend { display: flex; gap: 12px; margin-bottom: 1rem; flex-wrap: wrap; }
+.leg-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text3); }
+.leg-dot { width: 10px; height: 10px; border-radius: 2px; }
 </style>
 </head>
 <body>
+
+<nav class="tab-nav">
+  <button class="tab-btn" onclick="showTab('dashboard')">월간 현황</button>
+  <button class="tab-btn active" onclick="showTab('checklist')">오늘 루틴</button>
+</nav>
+
+<!-- ═══════════ CHECKLIST PAGE ═══════════ -->
+<div id="page-checklist" class="page active">
 <div class="wrap">
   <div class="header">
     <div class="date-label" id="date-label"></div>
-    <div class="title">오늘의 루틴</div>
+    <div class="page-title">오늘의 루틴</div>
   </div>
 
   <div class="focus-card">
-    <div class="focus-label">오늘의 최고가치 산출물</div>
+    <div class="card-label">오늘의 최고가치 산출물</div>
     <textarea class="focus-input" id="focus-output" placeholder="예: Nike 브랜드 섹션 2슬라이드 완성" rows="2"></textarea>
-    <div class="complete-label">완료 기준 1줄</div>
-    <textarea class="complete-input" id="complete-def" placeholder="예: 슬라이드 완성 후 팀장 공유하면 완료" rows="2"></textarea>
+    <div class="complete-sep">
+      <textarea class="complete-input" id="complete-def" placeholder="완료 기준 1줄 — 예: 슬라이드 완성 후 팀장 공유하면 완료" rows="2"></textarea>
+    </div>
   </div>
 
-  <div class="progress-bar-wrap"><div class="progress-bar" id="progress"></div></div>
+  <div class="prog-wrap"><div class="prog-bar" id="progress"></div></div>
 
   <div class="stat-row">
     <div class="stat"><div class="stat-num" id="done-count">0</div><div class="stat-lbl">완료</div></div>
@@ -106,172 +173,296 @@
   </div>
 
   <div class="section">
-    <div class="section-title">핵심 3개 <span class="section-accent">— 오늘 반드시</span></div>
-
+    <div class="sec-title">핵심 3개 <span class="sec-accent">— 오늘 반드시</span></div>
     <div class="item" data-id="1" onclick="toggle(this)">
-      <div class="checkbox"><svg class="check-svg" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <div class="item-content">
-        <div class="item-text">15분 착수 규칙 <span class="badge badge-core">핵심</span></div>
-        <div class="item-sub">고민 길어지면 15분만 일단 시작 — 시작이 성과를 만든다</div>
-      </div>
+      <div class="chk"><svg class="chk-svg" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="item-text">15분 착수 규칙 <span class="badge">핵심</span></div><div class="item-sub">고민 길어지면 15분만 일단 시작 — 시작이 성과를 만든다</div></div>
     </div>
-
     <div class="item" data-id="2" onclick="toggle(this)">
-      <div class="checkbox"><svg class="check-svg" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <div class="item-content">
-        <div class="item-text">딥워크 60~90분 1회 <span class="badge badge-core">핵심</span></div>
-        <div class="item-sub">회의/메신저 끊고 산출물 1개만 — 하루 성과의 70%는 여기서</div>
-      </div>
+      <div class="chk"><svg class="chk-svg" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="item-text">딥워크 60~90분 1회 <span class="badge">핵심</span></div><div class="item-sub">회의/메신저 끊고 산출물 1개만 — 하루 성과의 70%는 여기서</div></div>
     </div>
-
     <div class="item" data-id="3" onclick="toggle(this)">
-      <div class="checkbox"><svg class="check-svg" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <div class="item-content">
-        <div class="item-text">위임 1개 <span class="badge badge-core">핵심</span></div>
-        <div class="item-sub">"내가 봐야 안전하다"를 깨는 루틴 — 작은 거 하나 던지기</div>
-      </div>
+      <div class="chk"><svg class="chk-svg" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="item-text">위임 1개 <span class="badge">핵심</span></div><div class="item-sub">"내가 봐야 안전하다"를 깨는 루틴 — 작은 거 하나 던지기</div></div>
     </div>
   </div>
 
   <div class="section">
-    <div class="section-title">실행 루틴</div>
-
+    <div class="sec-title">실행 루틴</div>
     <div class="item" data-id="4" onclick="toggle(this)">
-      <div class="checkbox"><svg class="check-svg" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <div class="item-content">
-        <div class="item-text">To-do → 동사+대상+전달로 변환</div>
-        <div class="item-sub">"검토하기" 금지 → "표 1개 만들고 인사이트 3줄 공유"</div>
-      </div>
+      <div class="chk"><svg class="chk-svg" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="item-text">To-do → 동사+대상+전달로 변환</div><div class="item-sub">"검토하기" 금지 → "표 1개 만들고 인사이트 3줄 공유"</div></div>
     </div>
-
     <div class="item" data-id="5" onclick="toggle(this)">
-      <div class="checkbox"><svg class="check-svg" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <div class="item-content">
-        <div class="item-text">결정 1개 이분법으로 만들기</div>
-        <div class="item-sub">예: "A/B 중 뭐부터?", "이번 주 할인 vs 적립 중 메인은?"</div>
-      </div>
+      <div class="chk"><svg class="chk-svg" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="item-text">결정 1개 이분법으로 만들기</div><div class="item-sub">예: "A/B 중 뭐부터?", "이번 주 할인 vs 적립 중 메인은?"</div></div>
     </div>
-
     <div class="item" data-id="6" onclick="toggle(this)">
-      <div class="checkbox"><svg class="check-svg" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <div class="item-content">
-        <div class="item-text">커뮤니케이션 슬롯 2회 운영</div>
-        <div class="item-sub">메신저/메일은 오전 1회 + 오후 1회만 — 나머지 시간은 산출물</div>
-      </div>
+      <div class="chk"><svg class="chk-svg" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="item-text">커뮤니케이션 슬롯 2회 운영</div><div class="item-sub">메신저/메일은 오전 1회 + 오후 1회만 — 나머지 시간은 산출물</div></div>
     </div>
   </div>
 
   <div class="section">
-    <div class="section-title">리스크 & 버리기</div>
-
+    <div class="sec-title">리스크 & 버리기</div>
     <div class="item" data-id="7" onclick="toggle(this)">
-      <div class="checkbox"><svg class="check-svg" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <div class="item-content">
-        <div class="item-text">리스크 로그 3줄 + 차단 행동 1개</div>
-        <div class="item-sub">길게 쓰지 말고 3줄 / 각 리스크에 오늘 할 차단 행동 1개 붙이기</div>
-      </div>
+      <div class="chk"><svg class="chk-svg" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="item-text">리스크 로그 3줄 + 차단 행동 1개</div><div class="item-sub">길게 쓰지 말고 3줄 / 각 리스크에 오늘 할 차단 행동 1개 붙이기</div></div>
     </div>
-
     <div class="item" data-id="8" onclick="toggle(this)">
-      <div class="checkbox"><svg class="check-svg" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <div class="item-content">
-        <div class="item-text">버리기 리스트 3개</div>
-        <div class="item-sub">오늘 하지 않을 것 3개 — 성과는 "안 한 것"으로도 만들어진다</div>
-      </div>
+      <div class="chk"><svg class="chk-svg" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="item-text">버리기 리스트 3개</div><div class="item-sub">오늘 하지 않을 것 3개 — 성과는 "안 한 것"으로도 만들어진다</div></div>
     </div>
   </div>
 
   <div class="section">
-    <div class="section-title">마감 클로징</div>
-
+    <div class="sec-title">마감 클로징</div>
     <div class="item" data-id="9" onclick="toggle(this)">
-      <div class="checkbox"><svg class="check-svg" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <div class="item-content">
-        <div class="item-text">업무 종료 10분 클로징</div>
-        <div class="item-sub">오늘 산출물 3개 기록 + 내일 첫 행동 1줄만 적고 종료</div>
-      </div>
+      <div class="chk"><svg class="chk-svg" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="item-text">업무 종료 10분 클로징</div><div class="item-sub">오늘 산출물 3개 기록 + 내일 첫 행동 1줄만 적고 종료</div></div>
     </div>
   </div>
 
   <div class="note-area">
-    <div class="note-label">버리기 / 리스크 메모</div>
+    <div class="card-label">버리기 / 리스크 메모</div>
     <textarea class="note-input" id="notes" placeholder="오늘 하지 않을 것, 리스크 3줄..." rows="4"></textarea>
   </div>
 
   <div class="footer-row">
-    <button class="reset-btn" onclick="resetAll()">오늘 체크 초기화</button>
+    <button class="reset-btn" onclick="resetToday()">오늘 초기화</button>
+    <button class="save-btn" onclick="saveDay()">오늘 기록 저장</button>
   </div>
+</div>
+</div>
+
+<!-- ═══════════ DASHBOARD PAGE ═══════════ -->
+<div id="page-dashboard" class="page">
+<div class="wrap">
+  <div class="dash-header">
+    <div class="page-title">월간 현황</div>
+    <div class="month-nav">
+      <button class="nav-btn" onclick="changeMonth(-1)">&#8249;</button>
+      <div class="month-label" id="month-label"></div>
+      <button class="nav-btn" onclick="changeMonth(1)">&#8250;</button>
+    </div>
+  </div>
+
+  <div class="summary-grid">
+    <div class="sum-card"><div class="sum-num sum-green" id="d-full">0</div><div class="sum-lbl">완료일 (100%)</div></div>
+    <div class="sum-card"><div class="sum-num" id="d-partial">0</div><div class="sum-lbl">진행일</div></div>
+    <div class="sum-card"><div class="sum-num sum-red" id="d-zero">0</div><div class="sum-lbl">미기록일</div></div>
+  </div>
+
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:var(--green-bg);border:1px solid var(--green)"></div>100% 완료</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--blue-bg);border:1px solid var(--blue)"></div>부분 완료</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--red-bg);border:1px solid var(--red)"></div>0% 기록</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--bg);border:1px solid var(--border)"></div>미기록</div>
+  </div>
+
+  <div class="cal-label">이달 달력</div>
+  <div class="cal-grid" id="cal-grid"></div>
+
+  <div class="hist-label">일별 기록</div>
+  <div id="hist-list"></div>
+</div>
 </div>
 
 <script>
-  const KEY = 'daily_checklist_v1';
+const TOTAL = 9;
+const PREFIX = 'rl_day_';
+const TODAY_KEY = 'daily_checklist_v1';
 
-  function getState() {
-    try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; }
+function dateKey(y, m, d) {
+  return PREFIX + y + '_' + String(m+1).padStart(2,'0') + '_' + String(d).padStart(2,'0');
+}
+function todayStr() {
+  const t = new Date();
+  return t.getFullYear() + '-' + String(t.getMonth()+1).padStart(2,'0') + '-' + String(t.getDate()).padStart(2,'0');
+}
+
+function ls(key, val) {
+  if (val === undefined) { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } }
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
+}
+
+// ── TAB ──
+function showTab(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelector('[onclick="showTab(\'' + name + '\')"]').classList.add('active');
+  if (name === 'dashboard') renderDashboard();
+}
+
+// ── CHECKLIST ──
+function toggle(el) { el.classList.toggle('done'); updateProgress(); autoPersist(); }
+
+function updateProgress() {
+  const done = document.querySelectorAll('.item.done').length;
+  const pct = Math.round(done / TOTAL * 100);
+  document.getElementById('progress').style.width = pct + '%';
+  document.getElementById('done-count').textContent = done;
+  document.getElementById('total-count').textContent = TOTAL;
+  document.getElementById('pct').textContent = pct + '%';
+}
+
+function autoPersist() {
+  const s = ls(TODAY_KEY) || {};
+  document.querySelectorAll('.item').forEach(el => { s['item_' + el.dataset.id] = el.classList.contains('done'); });
+  s.focus = document.getElementById('focus-output').value;
+  s.complete = document.getElementById('complete-def').value;
+  s.notes = document.getElementById('notes').value;
+  ls(TODAY_KEY, s);
+}
+
+function saveDay() {
+  autoPersist();
+  const done = document.querySelectorAll('.item.done').length;
+  const t = new Date();
+  const key = dateKey(t.getFullYear(), t.getMonth(), t.getDate());
+  const existing = ls(key) || {};
+  ls(key, {
+    done: done,
+    total: TOTAL,
+    pct: Math.round(done / TOTAL * 100),
+    focus: document.getElementById('focus-output').value,
+    date: todayStr(),
+    savedAt: existing.savedAt || new Date().toISOString()
+  });
+  const btn = document.querySelector('.save-btn');
+  btn.textContent = '저장 완료!';
+  setTimeout(() => { btn.textContent = '오늘 기록 저장'; }, 1500);
+}
+
+function resetToday() {
+  document.querySelectorAll('.item').forEach(el => el.classList.remove('done'));
+  document.getElementById('focus-output').value = '';
+  document.getElementById('complete-def').value = '';
+  document.getElementById('notes').value = '';
+  ls(TODAY_KEY, {});
+  updateProgress();
+}
+
+function initChecklist() {
+  const t = new Date();
+  const days = ['일','월','화','수','목','금','토'];
+  document.getElementById('date-label').textContent =
+    t.getFullYear() + '년 ' + (t.getMonth()+1) + '월 ' + t.getDate() + '일 ' + days[t.getDay()] + '요일';
+  const s = ls(TODAY_KEY) || {};
+  document.querySelectorAll('.item').forEach(el => { if (s['item_' + el.dataset.id]) el.classList.add('done'); });
+  if (s.focus) document.getElementById('focus-output').value = s.focus;
+  if (s.complete) document.getElementById('complete-def').value = s.complete;
+  if (s.notes) document.getElementById('notes').value = s.notes;
+  ['focus-output','complete-def','notes'].forEach(id => {
+    document.getElementById(id).addEventListener('input', autoPersist);
+  });
+  updateProgress();
+}
+
+// ── DASHBOARD ──
+let dashYear, dashMonth;
+
+function changeMonth(dir) {
+  dashMonth += dir;
+  if (dashMonth < 0) { dashMonth = 11; dashYear--; }
+  if (dashMonth > 11) { dashMonth = 0; dashYear++; }
+  renderDashboard();
+}
+
+function renderDashboard() {
+  const y = dashYear, m = dashMonth;
+  document.getElementById('month-label').textContent = y + '년 ' + (m+1) + '월';
+
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const firstDow = new Date(y, m, 1).getDay();
+  const todayD = new Date();
+
+  // collect data
+  let full = 0, partial = 0, zero = 0;
+  const dayData = {};
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key = dateKey(y, m, d);
+    const rec = ls(key);
+    if (rec) {
+      dayData[d] = rec;
+      if (rec.pct === 100) full++;
+      else if (rec.pct === 0) zero++;
+      else partial++;
+    }
   }
-  function saveState(s) {
-    try { localStorage.setItem(KEY, JSON.stringify(s)); } catch {}
+  document.getElementById('d-full').textContent = full;
+  document.getElementById('d-partial').textContent = partial;
+  document.getElementById('d-zero').textContent = zero;
+
+  // calendar
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+  ['일','월','화','수','목','금','토'].forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'cal-dow'; el.textContent = d; grid.appendChild(el);
+  });
+  for (let i = 0; i < firstDow; i++) {
+    const el = document.createElement('div'); el.className = 'cal-day empty'; grid.appendChild(el);
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const el = document.createElement('div');
+    el.className = 'cal-day';
+    const rec = dayData[d];
+    if (rec) {
+      el.classList.add('has-data');
+      if (rec.pct === 100) el.classList.add('full');
+      else if (rec.pct === 0) el.classList.add('zero');
+      else el.classList.add('partial');
+      const pctEl = document.createElement('div');
+      pctEl.className = 'cal-pct'; pctEl.textContent = rec.pct + '%';
+      el.appendChild(document.createTextNode(d));
+      el.appendChild(pctEl);
+    } else {
+      el.textContent = d;
+    }
+    if (y === todayD.getFullYear() && m === todayD.getMonth() && d === todayD.getDate()) {
+      el.classList.add('today-mark');
+    }
+    grid.appendChild(el);
   }
 
-  function toggle(el) {
-    el.classList.toggle('done');
-    updateProgress();
-    persist();
+  // history list
+  const hist = document.getElementById('hist-list');
+  hist.innerHTML = '';
+  const entries = [];
+  for (let d = 1; d <= daysInMonth; d++) { if (dayData[d]) entries.push({d, rec: dayData[d]}); }
+  if (!entries.length) {
+    hist.innerHTML = '<div class="empty-msg">이달 기록이 없어요.<br>루틴을 완료하고 "오늘 기록 저장"을 눌러보세요.</div>';
+    return;
   }
+  entries.sort((a,b) => b.d - a.d).forEach(({d, rec}) => {
+    const row = document.createElement('div'); row.className = 'hist-item';
+    const dateEl = document.createElement('div'); dateEl.className = 'hist-date';
+    dateEl.textContent = (m+1) + '/' + d;
+    const barWrap = document.createElement('div'); barWrap.className = 'hist-bar-wrap';
+    const bar = document.createElement('div');
+    bar.className = 'hist-bar' + (rec.pct === 100 ? ' full-bar' : '');
+    bar.style.width = rec.pct + '%';
+    barWrap.appendChild(bar);
+    const pctEl = document.createElement('div'); pctEl.className = 'hist-pct';
+    pctEl.textContent = rec.pct + '%';
+    const outEl = document.createElement('div'); outEl.className = 'hist-output';
+    outEl.textContent = rec.focus || '';
+    row.appendChild(dateEl); row.appendChild(barWrap); row.appendChild(pctEl);
+    if (rec.focus) row.appendChild(outEl);
+    hist.appendChild(row);
+  });
+}
 
-  function updateProgress() {
-    const items = document.querySelectorAll('.item');
-    const done = document.querySelectorAll('.item.done').length;
-    const total = items.length;
-    const pct = total ? Math.round(done / total * 100) : 0;
-    document.getElementById('progress').style.width = pct + '%';
-    document.getElementById('done-count').textContent = done;
-    document.getElementById('total-count').textContent = total;
-    document.getElementById('pct').textContent = pct + '%';
-  }
+function init() {
+  const t = new Date();
+  dashYear = t.getFullYear(); dashMonth = t.getMonth();
+  initChecklist();
+}
 
-  function persist() {
-    const s = getState();
-    document.querySelectorAll('.item').forEach(el => {
-      s['item_' + el.dataset.id] = el.classList.contains('done');
-    });
-    s.focus = document.getElementById('focus-output').value;
-    s.complete = document.getElementById('complete-def').value;
-    s.notes = document.getElementById('notes').value;
-    saveState(s);
-  }
-
-  function resetAll() {
-    document.querySelectorAll('.item').forEach(el => el.classList.remove('done'));
-    document.getElementById('focus-output').value = '';
-    document.getElementById('complete-def').value = '';
-    document.getElementById('notes').value = '';
-    saveState({});
-    updateProgress();
-  }
-
-  function init() {
-    const today = new Date();
-    const days = ['일','월','화','수','목','금','토'];
-    document.getElementById('date-label').textContent =
-      today.getFullYear() + '년 ' + (today.getMonth()+1) + '월 ' + today.getDate() + '일 ' + days[today.getDay()] + '요일';
-
-    const s = getState();
-    document.querySelectorAll('.item').forEach(el => {
-      if (s['item_' + el.dataset.id]) el.classList.add('done');
-    });
-    if (s.focus) document.getElementById('focus-output').value = s.focus;
-    if (s.complete) document.getElementById('complete-def').value = s.complete;
-    if (s.notes) document.getElementById('notes').value = s.notes;
-
-    ['focus-output','complete-def','notes'].forEach(id => {
-      document.getElementById(id).addEventListener('input', persist);
-    });
-
-    updateProgress();
-  }
-
-  init();
+init();
 </script>
 </body>
 </html>

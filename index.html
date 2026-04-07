@@ -271,17 +271,15 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 
 <script>
 const TOTAL = 9;
-const PREFIX = 'rl_day_';
 const TODAY_KEY = 'daily_checklist_v1';
+const GS_URL = 'https://script.google.com/macros/s/AKfycbwWY63yzUcEEM8v9TdD3UjJx9MnIiR7NYEaQE7rqfNKe6hWmITVZICBeGJTlonN5A/exec';
 
-function dateKey(y, m, d) {
-  return PREFIX + y + '_' + String(m+1).padStart(2,'0') + '_' + String(d).padStart(2,'0');
-}
+let gsCache = {}; // { 'YYYY-MM-DD': {done,total,pct,focus} }
+
 function todayStr() {
   const t = new Date();
   return t.getFullYear() + '-' + String(t.getMonth()+1).padStart(2,'0') + '-' + String(t.getDate()).padStart(2,'0');
 }
-
 function ls(key, val) {
   if (val === undefined) { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } }
   try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
@@ -293,7 +291,7 @@ function showTab(name) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
   document.querySelector('[onclick="showTab(\'' + name + '\')"]').classList.add('active');
-  if (name === 'dashboard') renderDashboard();
+  if (name === 'dashboard') loadAndRender();
 }
 
 // ── CHECKLIST ──
@@ -317,23 +315,31 @@ function autoPersist() {
   ls(TODAY_KEY, s);
 }
 
-function saveDay() {
+async function saveDay() {
   autoPersist();
   const done = document.querySelectorAll('.item.done').length;
-  const t = new Date();
-  const key = dateKey(t.getFullYear(), t.getMonth(), t.getDate());
-  const existing = ls(key) || {};
-  ls(key, {
-    done: done,
-    total: TOTAL,
-    pct: Math.round(done / TOTAL * 100),
-    focus: document.getElementById('focus-output').value,
-    date: todayStr(),
-    savedAt: existing.savedAt || new Date().toISOString()
-  });
+  const pct = Math.round(done / TOTAL * 100);
+  const focus = document.getElementById('focus-output').value;
+  const payload = { date: todayStr(), done, total: TOTAL, pct, focus };
+
   const btn = document.querySelector('.save-btn');
-  btn.textContent = '저장 완료!';
-  setTimeout(() => { btn.textContent = '오늘 기록 저장'; }, 1500);
+  btn.textContent = '저장 중...';
+  btn.disabled = true;
+
+  try {
+    await fetch(GS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    gsCache[payload.date] = payload;
+    btn.textContent = '저장 완료!';
+  } catch(e) {
+    btn.textContent = '저장 실패 — 재시도';
+  }
+  btn.disabled = false;
+  setTimeout(() => { btn.textContent = '오늘 기록 저장'; }, 2000);
 }
 
 function resetToday() {
@@ -368,6 +374,24 @@ function changeMonth(dir) {
   dashMonth += dir;
   if (dashMonth < 0) { dashMonth = 11; dashYear--; }
   if (dashMonth > 11) { dashMonth = 0; dashYear++; }
+  loadAndRender();
+}
+
+async function loadAndRender() {
+  const hist = document.getElementById('hist-list');
+  const grid = document.getElementById('cal-grid');
+  hist.innerHTML = '<div class="empty-msg">데이터 불러오는 중...</div>';
+  grid.innerHTML = '';
+
+  try {
+    const res = await fetch(GS_URL + '?t=' + Date.now());
+    const rows = await res.json();
+    gsCache = {};
+    rows.forEach(r => { if (r.date) gsCache[r.date] = r; });
+  } catch(e) {
+    hist.innerHTML = '<div class="empty-msg">데이터를 불러오지 못했어요.<br>인터넷 연결을 확인해 주세요.</div>';
+    return;
+  }
   renderDashboard();
 }
 
@@ -379,12 +403,11 @@ function renderDashboard() {
   const firstDow = new Date(y, m, 1).getDay();
   const todayD = new Date();
 
-  // collect data
   let full = 0, partial = 0, zero = 0;
   const dayData = {};
   for (let d = 1; d <= daysInMonth; d++) {
-    const key = dateKey(y, m, d);
-    const rec = ls(key);
+    const key = y + '-' + String(m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    const rec = gsCache[key];
     if (rec) {
       dayData[d] = rec;
       if (rec.pct === 100) full++;
@@ -396,7 +419,6 @@ function renderDashboard() {
   document.getElementById('d-partial').textContent = partial;
   document.getElementById('d-zero').textContent = zero;
 
-  // calendar
   const grid = document.getElementById('cal-grid');
   grid.innerHTML = '';
   ['일','월','화','수','목','금','토'].forEach(d => {
@@ -428,7 +450,6 @@ function renderDashboard() {
     grid.appendChild(el);
   }
 
-  // history list
   const hist = document.getElementById('hist-list');
   hist.innerHTML = '';
   const entries = [];
@@ -448,10 +469,12 @@ function renderDashboard() {
     barWrap.appendChild(bar);
     const pctEl = document.createElement('div'); pctEl.className = 'hist-pct';
     pctEl.textContent = rec.pct + '%';
-    const outEl = document.createElement('div'); outEl.className = 'hist-output';
-    outEl.textContent = rec.focus || '';
     row.appendChild(dateEl); row.appendChild(barWrap); row.appendChild(pctEl);
-    if (rec.focus) row.appendChild(outEl);
+    if (rec.focus) {
+      const outEl = document.createElement('div'); outEl.className = 'hist-output';
+      outEl.textContent = rec.focus;
+      row.appendChild(outEl);
+    }
     hist.appendChild(row);
   });
 }

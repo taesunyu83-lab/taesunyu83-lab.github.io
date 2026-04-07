@@ -387,7 +387,7 @@ async function loadAndRender() {
     const res = await fetch(GS_URL + '?t=' + Date.now());
     const rows = await res.json();
     gsCache = {};
-    rows.forEach(r => { if (r.date) gsCache[r.date] = r; });
+    rows.forEach(r => { if (r.date) gsCache[String(r.date).trim()] = { date: r.date, done: Number(r.done), total: Number(r.total), pct: Number(r.pct), focus: r.focus }; });
   } catch(e) {
     hist.innerHTML = '<div class="empty-msg">데이터를 불러오지 못했어요.<br>인터넷 연결을 확인해 주세요.</div>';
     return;

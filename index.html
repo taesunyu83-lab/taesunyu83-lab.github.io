@@ -351,6 +351,19 @@ function resetToday() {
   updateProgress();
 }
 
+function autoResetIfNewDay() {
+  const lastDate = localStorage.getItem('last_open_date');
+  const today = todayStr();
+  if (lastDate && lastDate !== today) {
+    document.querySelectorAll('.item').forEach(el => el.classList.remove('done'));
+    document.getElementById('focus-output').value = '';
+    document.getElementById('complete-def').value = '';
+    document.getElementById('notes').value = '';
+    localStorage.setItem('daily_checklist_v1', JSON.stringify({}));
+  }
+  localStorage.setItem('last_open_date', today);
+}
+
 function initChecklist() {
   const t = new Date();
   const days = ['일','월','화','수','목','금','토'];
@@ -482,6 +495,7 @@ function renderDashboard() {
 function init() {
   const t = new Date();
   dashYear = t.getFullYear(); dashMonth = t.getMonth();
+  autoResetIfNewDay();
   initChecklist();
 }
 
